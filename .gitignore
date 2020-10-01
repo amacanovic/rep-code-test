@@ -2,6 +2,6 @@
 /bin
 
 # exclude data from source control by default
-/data/temp
-/data/processed
-/data/raw
+#/data/temp
+#/data/processed
+#/data/raw
