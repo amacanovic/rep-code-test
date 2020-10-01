@@ -1,0 +1,77 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This notebook loads and explores a dataset of texts produced by important
+organizations that have been a part of the first and second wave of feminist 
+movement. The idea is to explore the text using quantitative analysis and explore
+the performance of several unsupervised machine learning methods in identifying
+which text belongs to which wave of feminism.
+This is not the data I am working on for my project; that data is restricted.
+This file was created as a summary of steps taken in the actual analysis,
+simplyfing the steps and changing the data, but preserving the logic and
+methods used. 
+
+
+#Part 1: Data cleaning
+
+```{r message = FALSE, warning=FALSE}
+library(readr)
+library(magrittr)
+library(stringi)
+library(dplyr)
+dataset <- read_csv(
+  "../data/raw/comparativewomensmovement_dataset.csv",
+  local = locale(encoding = "latin1")) %>%
+  as.data.frame()
+```
+
+Removing redundant variables and checking the dataset structure:
+```{r}
+dataset <- dataset[, -c(1,2)]
+
+str(dataset)
+```
+
+Proceed to check if all texts are in English, using the textcat library.
+First, the text is lowercased:
+```{r message=FALSE, Warning=FALSE}
+library(textcat)
+
+language_eval_string <- subset(dataset, select = c(text_string)) %>%
+  mutate(lowercase_text_string = tolower(text_string))
+
+```
+
+Textcat provides a number of texts for identification. However, limiting the 
+options is advisable, since the identification with all available languages
+creates false positives (e.g. identifying English as Afrikaans, etc). Testing
+with English, German and French as possible options
+```{r}
+my.profiles <- TC_byte_profiles[names(TC_byte_profiles) %in% 
+                                  c("english", "german", "french")]
+my.profiles
+
+doc_lang_eval <- textcat(language_eval_string$lowercase_text_string, p = my.profiles) %>%
+  as.data.frame()
+
+doc_lang_eval <- as.data.frame(doc_lang_eval)
+
+table(doc_lang_eval)
+```
+
+To evaluate, we bind this to the dataset and check for the 
+documents that were labeled as "NA" and "German". A quick glimpse shows
+that "NA" observations had an empty text field, while the german one
+was in fact just a letter K. Thus, these are filtered out:
+```{r}
+dataset_lang_eval <- cbind(dataset,
+                           doc_lang_eval)
+
+dataset_lang_eval_filtered <-  filter(dataset_lang_eval, . == "english")
+```
+Save the file:
+```{r}
+write_csv(dataset_lang_eval_filtered, "../data/processed/dataset_lang_eval_filtered.csv")
+```

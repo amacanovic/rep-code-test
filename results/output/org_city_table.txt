@@ -1,0 +1,5 @@
+chicago,nyc
+cwlu,363,0
+heterodoxy,0,78
+hullhouse,237,0
+redstockings,0,340
