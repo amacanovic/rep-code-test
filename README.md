@@ -83,23 +83,34 @@ github page.
 
 ### Requirements
 
-This code requires a few libraries to be run. These are:
+Coded in R v3.6.1
 
-- readr
-- quanteda
-- tm
-- dplyr
-- magrittr
-- stringi
-- textcat
-- h2o (this part can be skipped, since requires )
-- psych
-- ggplot2
+This code requires a few libraries to be run. Below you can find the list with
+versions installed when the code was originally written:
+
+- readr 1.3.1
+- caret 6.0.84
+- quanteda 2.0.1
+- tm 0.7.7
+- NLP 0.2.0
+- dplyr 0.8.5
+- magrittr 1.5
+- stringi 1.4.5
+- textcat 1.0.6
+- h2o (this part can be skipped, since requires ) 3.28.0.4
+- psych 1.9.12.31
+- ggplot2 3.2.1
+- tidytext 0.2.2
+- topicmodels 0.2.9
+- lattice 0.20.38
 
 You can use the following code to install all the needed packages:
+
 ```
-install.packages(c("readr", "quanteda", "tm", "dplyr", "magrittr",
-"stringi", "testcat", "psych", "ggplot2"))
+
+install.packages(c("readr", "caret", "quanteda", "tm", "NLP", "dplyr", "magrittr",
+"stringi", "testcat", "psych", "ggplot2", "tidytext", "topicmodels", "lattice"))
+
 ```
 
 Optionally, also install - <b> this is a java wrapper for R, so might not
@@ -107,7 +118,9 @@ be that easy to set up; you can skip this part and skip the part of the code
 utilizing this package </b>
 
 ```
+
 install.packages("h2o")
+
 ```
 
 
