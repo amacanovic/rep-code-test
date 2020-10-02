@@ -38,9 +38,12 @@ from the First and Second wave feminist organizations. The actual texts are not
 readable; the data is shuffled so all the words contained in the texts appear in
 alphabetical order, because of copyright concerns.</p>
 The data is pulled from:
+
 ```
+
 Nelson, Laura K. "Computational grounded theory: A methodological framework." 
 Sociological Methods & Research 49.1 (2020): 3-42.
+
 ```
 
 The code consists of three analysis files - notebooks - R markdown files
