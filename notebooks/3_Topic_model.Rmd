@@ -82,6 +82,8 @@ words as vectors in multidimensional space while preserving the context in which
 they are situated. Thus, similar words will be closer in this space to each other.
 Useful for exploring the datasets and also classification.
 
+NB: This part can be skipped if you cannot quickly go over the h2o installation
+procedures.
 
 Loading the h2o library and loading the dataset into the library:
 ```{r message = FALSE, warning = FALSE}
@@ -95,6 +97,9 @@ text_h2o <- as.h2o(text)
 Define the text cleanup and lemmatization function and tokenize the text:
 ```{r}
 tokenize <- function(sentences) {
+  # Cleans and tokenizez the text
+  #
+  # Tokenizes the text from sentences
   tokenized <- h2o.tokenize(sentences, "\\\\W+")
   # convert to lower case
   tokenized_lower <- h2o.tolower(tokenized)
