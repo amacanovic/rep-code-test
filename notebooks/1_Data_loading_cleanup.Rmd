@@ -29,7 +29,7 @@ dataset <- read_csv(
 
 Removing redundant variables and checking the dataset structure:
 ```{r}
-dataset <- dataset[, -c(1,2)]
+dataset <- dataset[, -c(1, 2)]
 
 str(dataset)
 ```
@@ -39,7 +39,8 @@ First, the text is lowercased:
 ```{r message=FALSE, Warning=FALSE}
 library(textcat)
 
-language_eval_string <- subset(dataset, select = c(text_string)) %>%
+language_eval_string <- subset(dataset, 
+                               select = c(text_string)) %>%
   mutate(lowercase_text_string = tolower(text_string))
 
 ```
@@ -49,11 +50,11 @@ options is advisable, since the identification with all available languages
 creates false positives (e.g. identifying English as Afrikaans, etc). Testing
 with English, German and French as possible options
 ```{r}
-my.profiles <- TC_byte_profiles[names(TC_byte_profiles) %in% 
-                                  c("english", "german", "french")]
-my.profiles
+my_profiles <- TC_byte_profiles[names(TC_byte_profiles) %in% c("english", "german", "french")]
+my_profiles
 
-doc_lang_eval <- textcat(language_eval_string$lowercase_text_string, p = my.profiles) %>%
+doc_lang_eval <- textcat(language_eval_string$lowercase_text_string, 
+                         p = my_profiles) %>%
   as.data.frame()
 
 doc_lang_eval <- as.data.frame(doc_lang_eval)

@@ -27,12 +27,11 @@ Which years are the articles from?
 ```{r}
 table(dataset_lang_eval_filtered$date)
 
-
 library(ggplot2)
 
 ggplot(dataset_lang_eval_filtered, aes(date)) +
   geom_bar(fill = "#0073C2FF") 
-
+  
 png("../results/figures/year_plot.png")
 year_plot <- textstat_frequency(text_dfm_clean, n = 50) %>%
   ggplot(aes(x = reorder(feature, -rank), y = frequency)) +
@@ -47,11 +46,9 @@ Which organizations?
 table(dataset_lang_eval_filtered$org)
 
 
-library(ggplot2)
-
-ggplot(dataset_lang_eval_filtered, aes(org)) +
+organization_plot <- ggplot(dataset_lang_eval_filtered, aes(org)) +
   geom_bar(fill = "#0073C2FF") 
-
+  
 png("../results/figures/organization_plot.png")
 organization_plot <- textstat_frequency(text_dfm_clean, n = 50) %>%
   ggplot(aes(x = reorder(feature, -rank), y = frequency)) +
@@ -67,16 +64,24 @@ org_city_table <- table(dataset_lang_eval_filtered$org,
                         dataset_lang_eval_filtered$city)
 
 
-write.table(org_city_table, file = "../results/output/org_city_table.txt", sep = ",", quote = FALSE, row.names = T )
+write.table(org_city_table,
+            file = file = "../results/output/org_city_table.txt",
+            sep = ",",
+            quote = FALSE,
+            row.names = T)
 ```
 Get a descriptive statistics table to see the word counts and most published 
 years:
 ```{r}
 library(psych)
 
-pub_date_table <- describe(dataset_lang_eval_filtered[,c(4,5)])
+pub_date_table <- describe(dataset_lang_eval_filtered[, c(4, 5)])
 
-write.table(pub_date_table, file = "../results/output/pub_date_table.txt", sep = ",", quote = FALSE, row.names = T )
+write.table(pub_date_table,
+            file = "../results/output/pub_date_table.txt",
+            sep = ",",
+            quote = FALSE,
+            row.names = T)
 ```
 
 There are word counts already. Still, to check and 
@@ -86,30 +91,37 @@ and without punctuation, and the punctuation character counts:
 
 library(stringi)
 
-n_words <- sapply(dataset_lang_eval_filtered$text_string, stri_count_words)
+n_words <- sapply(dataset_lang_eval_filtered$text_string,
+                  stri_count_words)
 n_words <- unname(n_words)
 
-char_punct <- sapply(dataset_lang_eval_filtered$text_string,stri_count_regex, "[^ ]")
+char_punct <- sapply(dataset_lang_eval_filtered$text_string,
+                     stri_count_regex,
+                     "[^ ]")
 char_punct <- unname(char_punct)
 
-char_no_punct <- sapply(dataset_lang_eval_filtered$text_string,stri_count_regex, "[a-zA-Z0-9]")
+char_no_punct <- sapply(dataset_lang_eval_filtered$text_string,
+                        stri_count_regex,
+                        "[a-zA-Z0-9]")
 char_no_punct <- unname(char_no_punct)
 
 punct <- char_punct - char_no_punct
 
 
 
-text_stats <- cbind.data.frame(identifier = dataset_lang_eval_filtered$identifier,
-                    comment = dataset_lang_eval_filtered$text_string,
-                    n_words,
-                    char_no_punct,
-                    char_punct,
-                    punct)
+text_stats <- cbind.data.frame(
+  identifier = dataset_lang_eval_filtered$identifier,
+  comment = dataset_lang_eval_filtered$text_string,
+  n_words,
+  char_no_punct,
+  char_punct,
+  punct)
 
 text_stats$identifier <- as.character(text_stats$identifier)
 text_stats$comment <- as.character(text_stats$comment)
 
-write_csv(text_stats, "../results/output/text_stats.csv")
+write_csv(text_stats,
+          "../results/output/text_stats.csv")
 ```
 This confirms there is no punctuation in these texts. How do these
 word counts compare to the ones available in the dataset?
@@ -121,9 +133,13 @@ mean(dataset_lang_eval_filtered$word_count)
 Statistics on 
 words and characters?
 ```{r}
-words_char_calculated_table <- describe(text_stats[,c(3,4)])
-write.table(words_char_calculated_table, file = "../results/output/words_char_calculated_table.txt", sep = ",", quote = FALSE, row.names = T )
+words_char_calculated_table <- describe(text_stats[, c(3, 4)])
 
+write.table(words_char_calculated_table,
+            file = "../results/output/words_char_calculated_table.txt",
+            sep = ",",
+            quote = FALSE,
+            row.names = T)
 
 describe(dataset_lang_eval_filtered$word_count)
 ```
@@ -140,10 +156,10 @@ In the process, symbols and numbers are removed.
 ```{r}
 library(quanteda)
 
-clean_tokens <- tokens(dataset_lang_eval_filtered$text_string, 
+clean_tokens <- tokens(dataset_lang_eval_filtered$text_string,
                        remove_punct = TRUE,
                        remove_symbols = TRUE,
-                       remove_numbers = TRUE) %>% 
+                       remove_numbers = TRUE) %>%
   as.character()
 
 
@@ -160,9 +176,10 @@ text_dfm <- dfm(dataset_lang_eval_filtered$text_string,
                    remove_symbols = TRUE,
                    remove_numbers = TRUE)
 
-frequency_table <- textstat_frequency(text_dfm, n=20)
+frequency_table <- textstat_frequency(text_dfm, n = 20)
 
 write_csv(frequency_table, "../results/output/frequency_table.csv")
+
 
 ```
 
@@ -172,17 +189,17 @@ the number of documents it is present in.
 Drop some common words with less substantial meaning and check the top
 words again:
 ```{r}
-drop_list <- c("and", 
-               "a", 
-               "the", 
-               "to", 
-               "as", 
-               "is", 
-               "but", 
-               "on", 
+drop_list <- c("and",
+               "a",
+               "the",
+               "to",
+               "as",
+               "is",
+               "but",
+               "on",
                "in",
-               "of", 
-               "that", 
+               "of",
+               "that",
                "for",
                "it",
                "are",
@@ -190,9 +207,10 @@ drop_list <- c("and",
                "was",
                "be")
 
-text_dfm_clean <- text_dfm[,-which(colnames(text_dfm) %in% drop_list)]
+text_dfm_clean <- text_dfm[, -which(colnames(text_dfm) %in% drop_list)]
 
-frequency_table_clean <- textstat_frequency(text_dfm_clean, n=20)
+frequency_table_clean <- textstat_frequency(text_dfm_clean,
+                                            n = 20)
 
 write_csv(frequency_table_clean, "../results/output/frequency_table_clean.csv")
 
@@ -205,7 +223,7 @@ top_50_words_plot <- textstat_frequency(text_dfm_clean, n = 50) %>%
   ggplot(aes(x = reorder(feature, -rank), y = frequency)) +
   geom_bar(stat = "identity") + coord_flip() +
   labs(x = "", y = "Term Frequency")+ theme_minimal()
-
+  
 png("../results/figures/top_50_words_plot.png")
 top_50_words_plot <- textstat_frequency(text_dfm_clean, n = 50) %>%
   ggplot(aes(x = reorder(feature, -rank), y = frequency)) +

@@ -35,14 +35,14 @@ Quanteda uses this format for the keyness analysis.
 ```{r warning=F, message=F}
 library(quanteda)
 
-corpus_keyness <- corpus(dataset_lang_eval_filtered, 
-                         docid_field="identifier", 
-                         text_field="text_string")
+corpus_keyness <- corpus(dataset_lang_eval_filtered,
+                         docid_field = "identifier",
+                         text_field = "text_string")
 
-tokens_keyness <- tokens(corpus_keyness, 
-                         remove_numbers = TRUE, 
-                         remove_punct = TRUE, 
-                         remove_symbols = TRUE, 
+tokens_keyness <- tokens(corpus_keyness,
+                         remove_numbers = TRUE,
+                         remove_punct = TRUE,
+                         remove_symbols = TRUE,
                          remove_separators = TRUE)
 
 ```
@@ -52,8 +52,8 @@ than in the second wave literature:
 ```{r}
 dfm_keyness <- dfm(tokens_keyness, groups = "wave")
 
-keyness <- textstat_keyness(dfm_keyness, 
-                              target = "1", 
+keyness <- textstat_keyness(dfm_keyness,
+                              target = "1",
                               measure = "lr")
 ```
 
@@ -61,19 +61,17 @@ Evaluate the results:
 a. Words most representative of the first wave:
 ```{r}
 first_wave <- keyness[order(-keyness$G2),]
-
 print(first_wave[1:20])
 
 write_csv(first_wave, "../results/output/first_wave_key_words.csv")
 ```
+
 b. Words most representative of the second wave:
 ```{r}
 second_wave <- keyness[order(keyness$G2),]
-
 print(second_wave[1:20])
 
 write_csv(second_wave, "../results/output/second_wave_key_words.csv")
-
 ```
 
 
@@ -99,12 +97,14 @@ Define the text cleanup and lemmatization function and tokenize the text:
 tokenize <- function(sentences) {
   tokenized <- h2o.tokenize(sentences, "\\\\W+")
   # convert to lower case
-  tokenized.lower <- h2o.tolower(tokenized)
+  tokenized_lower <- h2o.tolower(tokenized)
   # remove short words (less than 2 characters)
-  tokenized.lengths <- h2o.nchar(tokenized.lower)
-  tokenized.filtered <- tokenized.lower[is.na(tokenized.lengths) || tokenized.lengths >= 2,]
+  tokenized_lengths <- h2o.nchar(tokenized_lower)
+  tokenized_filtered <- tokenized_lower[is.na(tokenized_lengths) || tokenized_lengths >= 2, ]
   # remove words that contain numbers
-  tokenized.words <- tokenized.filtered[h2o.grep("[0-9]", tokenized.filtered, invert = TRUE, output.logical = TRUE),]
+  tokenized_words <- tokenized_filtered[h2o.grep("[0-9]", tokenized_filtered,
+                                                 invert = TRUE,
+                                                 output.logical = TRUE), ]
 }
 
 text_h2o$string <- h2o.ascharacter(text_h2o$text)
@@ -112,8 +112,13 @@ tokens_text <- tokenize(text_h2o$string)
 ```
 Training the word2vec model and saving it: 
 ```{r}
-w2v_model <- h2o.word2vec(tokens_text, window_size = 5, sent_sample_rate = 0, epochs = 10)
-model_path <- h2o.saveModel(object=w2v_model, path="../data/temp", force=TRUE)
+w2v_model <- h2o.word2vec(tokens_text,
+                          window_size = 5,
+                          sent_sample_rate = 0,
+                          epochs = 10)
+model_path <- h2o.saveModel(object = w2v_model,
+                            path="../data/temp",
+							force = TRUE)
 
 ```
 The model path is:
@@ -122,9 +127,7 @@ The model path is:
 To evaluate the performance of this model, check a few synonyms:
 ```{r}
 synonym_woman <- h2o.findSynonyms(w2v_model, "woman", count = 10)
-
 synonym_man <- h2o.findSynonyms(w2v_model, "man", count = 10)
-
 synonym_work <- h2o.findSynonyms(w2v_model, "work", count = 10)
 
 synonym_woman
@@ -132,12 +135,10 @@ synonym_man
 synonym_work
 
 write_csv(synonym_woman, "../results/output/word2vec_synonym_woman.csv")
-
 write_csv(synonym_man, "../results/output/word2vec_synonym_man.csv")
-
 write_csv(synonym_work, "../results/output/word2vec_synonym_work.csv")
 ```
-Of course, this model does not work well. This is because the order of the words
+Thhis model does not work well. This is because the order of the words
 is not correct in this dataset, so it cannot rely on the context of the words.
 
 Thus, this method will be skipped for now.
@@ -156,7 +157,9 @@ global_id. Convert to a corpus.
 
 ```{r}
 corpus_docs <- dataset_lang_eval_filtered %$%
-  data.frame(doc_id= identifier, text = text_string, stringsAsFactors = FALSE) %>%
+  data.frame(doc_id = identifier,
+             text = text_string,
+             stringsAsFactors = FALSE) %>%
   DataframeSource() %>%
   Corpus()
 ```
@@ -164,8 +167,8 @@ Convertthe corpus into a document term matrix(where each row is a document, each
 column is a word and values represent the frequency of each word occuring in each
 document), removing punctuation and numbers.
 ```{r}
-dtm_data <- DocumentTermMatrix(corpus_docs, 
-                                list(removePunctuation=TRUE,
+dtm_data <- DocumentTermMatrix(corpus_docs,
+                                list(removePunctuation = TRUE,
                                      removeNumbers = TRUE))
 dtm_data
 
@@ -185,8 +188,8 @@ This removed some rarely occuring words, with 7568 terms remaining.
 
 Removing any empty rows:
 ```{r}
-ui = unique(dtm_data$i)
-dtm_clean <-  dtm_data[ui,]
+ui <-  unique(dtm_data$i)
+dtm_clean <-  dtm_data[ui, ]
 
 dtm_matrix <- as.matrix(dtm_clean)
 ```
@@ -200,9 +203,9 @@ library(topicmodels)
 
 lda_10_topics <-  LDA(
   dtm_matrix,
-  k=10,
+  k = 10,
   method = "Gibbs",
-  control = list(seed = 123, alpha = 50/10)
+  control = list(seed = 123, alpha = 50 / 10)
 )
 ```
 
@@ -225,7 +228,8 @@ lda_top_terms <- lda_topics_check %>%
   top_n(20, beta) %>%
   ungroup() %>%
   arrange(topic, -beta)
-
+  
+  
 lda_top_terms %>%
   mutate(term = reorder_within(term, beta, topic)) %>%
   ggplot(aes(term, beta, fill = factor(topic))) +
@@ -233,7 +237,8 @@ lda_top_terms %>%
   facet_wrap(~ topic, scales = "free") +
   coord_flip() +
   scale_x_reordered()
-
+  
+  
 png("../results/figures/lda_top_terms.png")
 lda_top_terms <- textstat_frequency(text_dfm_clean, n = 50) %>%
   ggplot(aes(x = reorder(feature, -rank), y = frequency)) +
@@ -242,16 +247,16 @@ lda_top_terms <- textstat_frequency(text_dfm_clean, n = 50) %>%
 print(lda_top_terms)
 dev.off()
 ```
-This plot is saved as "lda_top_terms.pdf".
 
 
 It appears topic 2 could relate to the first wave and topic 10 to the second.
 Using the previously obtained probabilities, assign everything above the mean 
 probability of topic 10 to the first wave, everything below to the second wave:
 ```{r}
-assign_documents_lda <- ifelse(lda_10_topics_gamma$V10 > mean(lda_10_topics_gamma$V10),
-                               "1",
-                               "2")
+assign_documents_lda <- ifelse(
+  lda_10_topics_gamma$V10 > mean(lda_10_topics_gamma$V10),
+  "1",
+  "2")
 
 table(assign_documents_lda)
 ```
@@ -266,14 +271,14 @@ predicted_data_lda <- as.factor(ifelse(assign_documents_lda == "2", 1, 0))
 
 library(caret)
 
-conf_matrix_lda <- confusionMatrix(actual_data, 
+conf_matrix_lda <- confusionMatrix(actual_data,
                 predicted_data_lda)
 
 conf_matrix_lda$table
 conf_matrix_lda$overall
 
 write.table(conf_matrix_lda$table, "../results/output/conf_matrix_table.txt")
-
 write.table(conf_matrix_lda$overall, "../results/output/conf_matrix_statistics.txt")
+
 ```
 Accuracy of 52%. 
