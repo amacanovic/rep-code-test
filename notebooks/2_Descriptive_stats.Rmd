@@ -27,16 +27,15 @@ Which years are the articles from?
 ```{r}
 table(dataset_lang_eval_filtered$date)
 
+library(quanteda)
 library(ggplot2)
 
-ggplot(dataset_lang_eval_filtered, aes(date)) +
+year_plot <- ggplot(dataset_lang_eval_filtered, aes(date)) +
   geom_bar(fill = "#0073C2FF") 
   
 png("../results/figures/year_plot.png")
-year_plot <- textstat_frequency(text_dfm_clean, n = 50) %>%
-  ggplot(aes(x = reorder(feature, -rank), y = frequency)) +
-  geom_bar(stat = "identity") + coord_flip() +
-  labs(x = "", y = "Term Frequency")+ theme_minimal()
+year_plot <- ggplot(dataset_lang_eval_filtered, aes(date)) +
+  geom_bar(fill = "#0073C2FF") 
 print(year_plot)
 dev.off()
 ```
@@ -50,10 +49,9 @@ organization_plot <- ggplot(dataset_lang_eval_filtered, aes(org)) +
   geom_bar(fill = "#0073C2FF") 
   
 png("../results/figures/organization_plot.png")
-organization_plot <- textstat_frequency(text_dfm_clean, n = 50) %>%
-  ggplot(aes(x = reorder(feature, -rank), y = frequency)) +
-  geom_bar(stat = "identity") + coord_flip() +
-  labs(x = "", y = "Term Frequency")+ theme_minimal()
+organization_plot <- ggplot(dataset_lang_eval_filtered, aes(org)) +
+  geom_bar(fill = "#0073C2FF") 
+
 print(organization_plot)
 dev.off()
 ```
@@ -65,7 +63,7 @@ org_city_table <- table(dataset_lang_eval_filtered$org,
 
 
 write.table(org_city_table,
-            file = file = "../results/output/org_city_table.txt",
+            file =  "../results/output/org_city_table.txt",
             sep = ",",
             quote = FALSE,
             row.names = T)
